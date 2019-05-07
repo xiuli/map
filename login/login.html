@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./css/login.css">
+    <title>登录页面</title>
+</head>
+
+<body>
+    <div class="bg">
+        <div class="contentBox">
+            <h1 class="title">北京地铁信息登录系统</h1>
+            <div class="innerBg">
+                <div class="inputBox">
+                    <input type="text" name="username" value="" placeholder="请输入您的用户名" class="textBox txtOne">
+                    <input type="password" name="psw" value="" placeholder="请输入密码" maxlength="6" class="textBox txtTwo">
+                    <input type="submit" name="sbt" value="登 录" class="loginBox">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/jquery.js"></script>
+    <script>
+        $('.textBox').on('focus', function () {
+            $(this).addClass('active');
+        });
+        $('.textBox').on('blur', function () {
+            $(this).removeClass('active');
+        });
+        $('.loginBox').on('click', function () {
+            let user = $('.txtOne').val();
+            let pass = $('.txtTwo').val();
+            if (!user) {
+                alert('请输入用户名');
+                return;
+            }
+            if (!pass) {
+                alert('请输入密码');
+                return;
+            }
+
+
+            //与后台交互的ajax
+            $.post('http://tl.hxiuli.com/api/login_do.php',{
+                username: $('.txtOne').val(),
+                password: $('.txtTwo').val()
+            },function(res){
+                if (res.status == 0) {
+                    alert(res.message);
+                } else {
+                    alert('登录成功');
+                }
+            },'json');
+        });
+    </script>
+</body>
+
+</html>

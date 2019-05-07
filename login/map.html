@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>地铁图展示</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <script src="../js/jquery.js"></script>
+  <script src="https://api.map.baidu.com/api?type=subway&v=1.0&ak=XtKHw36dNjdsdpUjQS4ihtmOzDog0BXn"></script>
+  <link rel="stylesheet" href="https://webmap1.bdimg.com/wolfman/static/common/pkg/index_c1475dd.css" />
+  <style>
+    #subwaymap_svg {
+      height: 100%;
+    }
+
+    #bd-subwayTitle {
+      text-align: center;
+      line-height: 50px;
+    }
+
+    .direction_close {
+      top: 150px;
+    }
+
+    .direction_detail {
+      display: none;
+    }
+
+    .searchbox-content .searchbox-content-button {
+      opacity: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="left-panel">
+    <div id="searchbox" class="clearfix">
+      <div id="searchbox-container">
+        <div id="sole-searchbox-content" class="searchbox-content" style="display: none;">
+          <input id="sole-input" class="searchbox-content-common" type="text" name="word" autocomplete="off"
+            maxlength="256" placeholder="搜地点、查公交、找路线" value="" />
+          <div class="input-clear" title="清空" style="display: none;"></div>
+          <div class="searchbox-content-button right-button route-button loading-button" data-title="路线"></div>
+        </div>
+        <div id="metro-searchbox-content" class="searchbox-content route-searchbox-content metroline"
+          style="display: block;">
+          <div class="route-header">
+            <div class="searchbox-content-button left-button return-button loading-button" data-title="返回"
+              data-tooltip="1"></div>
+            <div class="searchbox-content-common route-tabs">
+              <div class="tab-item metroline-tab" data-index="metroline">
+                <i></i>
+                <span>换乘查询</span>
+              </div>
+              <div class="tab-item metrostation-tab" data-index="metrostation">
+                <i></i>
+                <span>站点查询</span>
+              </div>
+              <div class="arrow-wrap"></div>
+            </div>
+            <div class="searchbox-content-button right-button cancel-button" data-title="清空"></div>
+          </div>
+          <div class="routebox">
+            <div class="searchbox-content-common routebox-content metroline-content" style="display: block;">
+              <div class="routebox-revert" title="切换起终点">
+                <div class="routebox-revert-icon"></div>
+              </div>
+              <div class="routebox-inputs">
+                <div class="routebox-input route-start">
+                  <div class="route-input-icon"></div>
+                  <input id="sub_start_input" autocomplete="off" maxlength="256" placeholder="输入起点"
+                    class="route-start-input" type="text" value="" />
+                  <div class="input-clear" title="清空"></div>
+                </div>
+                <div class="routebox-input route-end">
+                  <div class="route-input-icon"></div>
+                  <input id="sub_end_input" autocomplete="off" maxlength="256" placeholder="输入终点"
+                    class="route-end-input" type="text" value="" />
+                  <div class="input-clear" title="清空"></div>
+                </div>
+              </div>
+            </div>
+            <div class="searchbox-content-common routebox-content metrostation-content" style="display: none;">
+              <div class="routebox-inputs">
+                <div class="routebox-input route-start">
+                  <div class="route-input-icon"></div>
+                  <input id="sub_station_input" autocomplete="off" maxlength="256" placeholder="输入站点"
+                    class="route-start-input" type="text" value="" />
+                  <div class="input-clear" title="清空"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="route-searchbox-content" class="searchbox-content route-searchbox-content bus" style="display: none;">
+          <div class="route-header">
+            <div class="searchbox-content-common route-tabs">
+              <div class="tab-item bus-tab" data-index="bus">
+                <i></i>
+                <span>公交</span>
+              </div>
+              <div class="tab-item drive-tab" data-index="drive">
+                <i></i>
+                <span>驾车</span>
+              </div>
+              <div class="tab-item walk-tab" data-index="walk">
+                <i></i>
+                <span>步行</span>
+              </div>
+              <div class="tab-item bike-tab" data-index="bike">
+                <i></i>
+                <span>骑行</span>
+              </div>
+              <div class="arrow-wrap"></div>
+            </div>
+            <div class="searchbox-content-button right-button cancel-button loading-button" data-title="关闭路线"></div>
+          </div>
+          <div class="routebox">
+            <div class="searchbox-content-common routebox-content">
+              <div class="routebox-revert" title="切换起终点">
+                <div class="routebox-revert-icon"></div>
+              </div>
+              <div class="routebox-inputs">
+                <div class="routebox-input route-start">
+                  <div class="route-input-icon"></div>
+                  <input autocomplete="off" maxlength="256" placeholder="输入起点或在图区上选点" class="route-start-input"
+                    type="text" value="" />
+                  <div class="input-clear" title="清空" style="display: none;"></div>
+                  <div class="route-input-add-icon"></div>
+                </div>
+                <div class="routebox-input route-end">
+                  <div class="route-input-icon"></div>
+                  <input autocomplete="off" maxlength="256" placeholder="输入终点" class="route-end-input" type="text"
+                    value="" />
+                  <div class="input-clear" title="清空" style="display: none;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="busline-searchbox-content" class="searchbox-content" style="display: none;">
+          <div class="searchbox-content-button left-button return-button loading-button" data-title="返回"
+            data-tooltip="2"></div>
+          <input id="busline-input" class="searchbox-content-common" type="text" name="word" autocomplete="off"
+            maxlength="256" placeholder="搜公交路线" value="" />
+          <div class="input-clear" title="清空" style="display: none;"></div>
+          <div class="searchbox-content-button right-button cancel-button" data-title="清空"></div>
+        </div>
+      </div>
+      <button id="search-button" data-title="搜索"></button>
+      <div id="toast-wrapper">
+        <div id="toast">
+          <img class="info-tip-img" src="/wolfman/static/common/images/transparent.gif" alt="" />
+          <span class="info-tip-text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="subwaymap_svg"></div>
+
+  <div class="subway-menu">
+    <div class="subway-col">
+      <div class="subway-item" lid="地铁1号线" data-start="苹果园" data-end="四惠东">
+        <span class="subway-icon" style="background-color:#CC0000"></span>
+        <span class="subway-txt">1号线</span>
+      </div>
+      <div class="subway-item" lid="地铁2号线" data-start="西直门" data-end="车公庄">
+        <span class="subway-icon" style="background-color:#0066CC"></span>
+        <span class="subway-txt">2号线</span>
+      </div>
+      <div class="subway-item" lid="地铁4号线大兴线" data-start="安河桥北" data-end="公益西桥">
+        <span class="subway-icon" style="background-color:#00CCCC"></span>
+        <span class="subway-txt">4号线大兴线</span>
+      </div>
+      <div class="subway-item" lid="地铁5号线" data-start="宋家庄" data-end="天通苑北">
+        <span class="subway-icon" style="background-color:#990066"></span>
+        <span class="subway-txt">5号线</span>
+      </div>
+      <div class="subway-item" lid="地铁6号线" data-start="海淀五路居" data-end="潞城">
+        <span class="subway-icon" style="background-color:#ea9914"></span>
+        <span class="subway-txt">6号线</span>
+      </div>
+    </div>
+    <div class="subway-col">
+      <div class="subway-item" lid="地铁7号线" data-start="北京西站" data-end="焦化厂">
+        <span class="subway-icon" style="background-color:#e7600e"></span>
+        <span class="subway-txt">7号线</span>
+      </div>
+      <div class="subway-item" lid="地铁8号线" data-start="朱辛庄" data-end="中国美术馆">
+        <span class="subway-icon" style="background-color:#006633"></span>
+        <span class="subway-txt">8号线</span>
+      </div>
+      <div class="subway-item" lid="地铁8号线南段" data-start="珠市口" data-end="瀛海">
+        <span class="subway-icon" style="background-color:#006633"></span>
+        <span class="subway-txt">8号线南段</span>
+      </div>
+      <div class="subway-item" lid="地铁9号线" data-start="郭公庄" data-end="国家图书馆">
+        <span class="subway-icon" style="background-color:#ADCB13"></span>
+        <span class="subway-txt">9号线</span>
+      </div>
+      <div class="subway-item" lid="地铁10号线" data-start="巴沟" data-end="火器营">
+        <span class="subway-icon" style="background-color:#0099FF"></span>
+        <span class="subway-txt">10号线</span>
+      </div>
+    </div>
+    <div class="subway-col">
+      <div class="subway-item" lid="地铁13号线" data-start="西直门" data-end="东直门">
+        <span class="subway-icon" style="background-color:#FFCC33"></span>
+        <span class="subway-txt">13号线</span>
+      </div>
+      <div class="subway-item" lid="地铁14号线西段(张郭庄-西局)" data-start="张郭庄" data-end="西局">
+        <span class="subway-icon" style="background-color:#D39188"></span>
+        <span class="subway-txt">14号线西段</span>
+      </div>
+      <div class="subway-item" lid="地铁14号线东段(北京南站-善各庄)" data-start="北京南站" data-end="善各庄">
+        <span class="subway-icon" style="background-color:#D39188"></span>
+        <span class="subway-txt">14号线东段</span>
+      </div>
+      <div class="subway-item" lid="地铁15号线" data-start="俸伯" data-end="清华东路西口">
+        <span class="subway-icon" style="background-color:#5c2a69"></span>
+        <span class="subway-txt">15号线</span>
+      </div>
+      <div class="subway-item" lid="地铁16号线" data-start="西苑" data-end="北安河">
+        <span class="subway-icon" style="background-color:#5DB85E"></span>
+        <span class="subway-txt">16号线</span>
+      </div>
+    </div>
+    <div class="subway-col">
+      <div class="subway-item" lid="地铁八通线" data-start="四惠" data-end="土桥">
+        <span class="subway-icon" style="background-color:#CC0000"></span>
+        <span class="subway-txt">八通线</span>
+      </div>
+      <div class="subway-item" lid="地铁昌平线" data-start="昌平西山口" data-end="西二旗">
+        <span class="subway-icon" style="background-color:#C40082"></span>
+        <span class="subway-txt">昌平线</span>
+      </div>
+      <div class="subway-item" lid="地铁亦庄线" data-start="宋家庄" data-end="次渠">
+        <span class="subway-icon" style="background-color:#FF3703"></span>
+        <span class="subway-txt">亦庄线</span>
+      </div>
+      <div class="subway-item" lid="地铁房山线" data-start="郭公庄" data-end="苏庄">
+        <span class="subway-icon" style="background-color:#D5353F"></span>
+        <span class="subway-txt">房山线</span>
+      </div>
+      <div class="subway-item" lid="机场线" data-start="东直门" data-end="T2航站楼">
+        <span class="subway-icon" style="background-color:#B699BD"></span>
+        <span class="subway-txt">机场线</span>
+      </div>
+    </div>
+    <div class="subway-col">
+      <div class="subway-item" lid="地铁s1线" data-start="石厂" data-end="金安桥">
+        <span class="subway-icon" style="background-color:#a02024"></span>
+        <span class="subway-txt">s1线</span>
+      </div>
+      <div class="subway-item" lid="地铁燕房线" data-start="阎村东" data-end="燕山">
+        <span class="subway-icon" style="background-color:#dd6a24"></span>
+        <span class="subway-txt">燕房线</span>
+      </div>
+      <div class="subway-item" lid="地铁西郊线" data-start="巴沟" data-end="香山">
+        <span class="subway-icon" style="background-color:#cc3736"></span>
+        <span class="subway-txt">西郊线</span>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    var subwayJson = {
+      site: "",
+      siteZoom: "0.6"
+    };
+    var subwayCityName = "北京";
+    var list = BMapSub.SubwayCitiesList;
+    var subwaycity = null;
+    var start_station = (end_station = "");
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].name === subwayCityName) {
+        subwaycity = list[i];
+        break;
+      }
+    }
+
+    // 获取北京地铁数据-初始化地铁图
+    var subway = new BMapSub.Subway("subwaymap_svg", subwaycity.citycode);
+    subway.setZoom(subwayJson.siteZoom);
+
+    // 缩放
+    var zoomControl = new BMapSub.ZoomControl({
+      anchor: BMAPSUB_ANCHOR_BOTTOM_RIGHT,
+      offset: new BMapSub.Size(10, 100) // 缩放按钮位置
+    });
+    subway.addControl(zoomControl);
+
+    // 站点标注
+    var startIcon = new BMapSub.Icon(
+      "https://api.map.baidu.com/images/subway/start-bak.png",
+      new BMapSub.Size(50, 80) // 站点标注大小
+    );
+    var marker = new BMapSub.Marker(subwayJson.site, {
+      icon: startIcon
+    });
+    subway.addMarker(marker);
+
+    // 信息标注
+    var infowindow = new BMapSub.InfoWindow(
+      '<div id="bd-subwayInfo">' +
+      '<div id="bd-subwayTitle">' +
+      "" +
+      subwayJson.site +
+      "" +
+      "</div>" +
+      "</div>"
+    );
+
+    //站点点击事件
+    subway.addEventListener("tap", function (e) {
+      subwayJson.site = e.station.name;
+
+      //站点详情
+      var detail = new BMapSub.DetailInfo(subway);
+      detail.search(subwayJson.site);
+    });
+
+    //线路规划
+    subway.addEventListener("subwayloaded", function () {
+      var drct = new BMapSub.Direction(subway);
+      $(".subway-item").on("mouseenter", function () {
+        start_station = $(this).attr("data-start");
+        end_station = $(this).attr("data-end");
+        if (start_station && end_station) {
+          drct.search(start_station, end_station);
+        }
+      });
+    });
+  </script>
+  <script>
+    /* 切换查询方式 */
+    $("#metro-searchbox-content .route-tabs .tab-item").on("click", function () {
+      var oClass = $(this).attr("data-index");
+      $("#metro-searchbox-content").removeClass("metrostation metroline").addClass(oClass);
+      $("#metro-searchbox-content .routebox .routebox-content").eq($(this).index()).show().siblings().hide();
+    });
+    /* 切换起点终点 */
+    $("#metro-searchbox-content .routebox-revert-icon").on("click", function () {
+      var sub_start_input = $.trim($('#sub_start_input').val());
+      var sub_end_input = $.trim($('#sub_end_input').val());
+      if (sub_start_input || sub_end_input) {
+        $('#sub_start_input').val(sub_end_input);
+        $('#sub_end_input').val(sub_start_input);
+      }
+    });
+    /* 搜索 */
+    $('#search-button').on('click', function () {
+      if ($('#metro-searchbox-content').hasClass('metroline')) {
+        var sub_start_input = $.trim($('#sub_start_input').val());
+        var sub_end_input = $.trim($('#sub_end_input').val());
+        if (sub_start_input && sub_end_input) {
+          var drct = new BMapSub.Direction(subway);
+          drct.search(sub_start_input, sub_end_input);
+          setTimeout(function () {
+            if ($('.direction_close').width()) {
+              // 保存换成查询ajax
+              $.post('./api/map_do.php', {
+                type: 'change',
+                start_site: sub_start_input,
+                end_site: sub_end_input
+              }, function (res) {
+                if (res.status == 0) {
+                  alert(res.message);
+                } else {
+                  alert('记录成功');
+                }
+              }, 'json');
+            }
+          }, 1000);
+        }
+      } else {
+        var sub_station_input = $.trim($('#sub_station_input').val());
+        if (sub_station_input) {
+          var detail = new BMapSub.DetailInfo(subway);
+          detail.search(sub_station_input);
+          setTimeout(function () {
+            if ($('#bd-DetailInfo').width()) {
+              // 保存站点查询ajax
+              $.post('./api/map_do.php', {
+                type: 'station',
+                site: sub_station_input
+              }, function (res) {
+                if (res.status == 0) {
+                  alert(res.message);
+                } else {
+                  alert('记录成功');
+                }
+              }, 'json');
+            }
+          }, 1000);
+        }
+      }
+    });
+    /* 关闭站点查询 */
+    // $(document).on('click', '.clearDetailInfo', function () {
+    //   alert(1);
+    //   $('#sub_station_input').val('');
+    // });
+    /* 关闭路线查询 */
+    // $(window).on('click','.direction_close', function () {
+    //   alert(11);
+    //   $('#sub_start_input,#sub_end_input').val('');
+    // });
+  </script>
+
+  <!-- <script>
+    var oDiv = (str1 = str2 = str3 = str4 = str5 = scale1 = scale2 = translate1 = translate2 = new_scale1 = new_scale2 =
+      new_translate1 = new_translate2 = ostr1 = ostr2 = null);
+
+    $("#subwaymap_svg").bind("mousewheel", function (event) {
+      oDiv = $("#svgjsG1000").css("transform");
+      str1 = oDiv.indexOf("(");
+      str2 = oDiv.indexOf(",");
+      str3 = oDiv.indexOf(")");
+      str4 = oDiv.lastIndexOf("(");
+      str5 = oDiv.lastIndexOf(",");
+      str6 = oDiv.lastIndexOf(")");
+
+      scale1 = oDiv.substring(str1 + 1, str2);
+      scale2 = oDiv.substring(str2 + 2, str3);
+      translate1 = oDiv.substring(str4 + 2, str5 - 2);
+      translate2 = oDiv.substring(str5 + 3, str6 - 2);
+
+      if (event.deltaY > 0) {
+        new_scale1 = scale1 / 1.25;
+        new_scale2 = scale2 / 1.25;
+        new_translate1 = translate1 * scale1 + "px";
+        new_translate2 = translate2 * scale2 + "px";
+        ostr1 =
+          "scale(" +
+          new_scale1 +
+          ", " +
+          new_scale2 +
+          ") translate(" +
+          new_translate1 +
+          ", " +
+          new_translate2 +
+          ")";
+
+        $("#svgjsG1000").css("transform", ostr1);
+      } else {
+        new_scale1 = scale1 * 1.25;
+        new_scale2 = scale2 * 1.25;
+        new_translate1 = translate1 * scale1 + "px";
+        new_translate2 = translate2 * scale2 + "px";
+
+        ostr2 =
+          "scale(" +
+          new_scale1 +
+          ", " +
+          new_scale2 +
+          ") translate(" +
+          new_translate1 +
+          ", " +
+          new_translate2 +
+          ")";
+        $("#svgjsG1000").css("transform", ostr2);
+      }
+    });
+  </script> -->
+</body>
+
+</html>

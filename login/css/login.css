@@ -1,0 +1,34 @@
+*{margin:0;padding:0}
+h1,h2,h3,h4,h5,h6,p{font-size:12px;font-weight:400}
+b,em,i,strong{font-style:normal;font-weight:400}
+dl,ol,ul{margin:0;padding:0}
+li{list-style:none}
+.fl{float:left}
+.fr{float:right}
+.clearfix:after{display:block;content:'';clear:both}
+.clearfix{zoom:1}
+a img{border:0}
+a{color:#333;text-decoration:none;cursor:pointer}
+img{vertical-align:top}
+textarea{resize:none}
+input,select,textarea{outline:0}
+table{border-collapse:collapse}
+td,th{padding:0;border:1px solid #000}
+body{font-family:"Microsoft YaHei";font-size:12px;background:#fff}
+input{font-family:"Microsoft YaHei"}
+textarea{resize:none}
+input,textarea{outline:0;resize:none}
+a,b,button,div,em,h1,h2,h3,h4,h5,i,input,li,optgroup,p,select,span,textarea{-webkit-tap-highlight-color:transparent}
+
+
+body,html{width:100%;height:100%}
+.bg{width:100%;height:100%;background:url('../images/bg.png') no-repeat center center;display:flex;justify-content:center;align-items:center}
+.contentBox{width:598px;height:463px;border:6px #7d909b solid;border-radius:5px}
+.title{width:100%;height:92px;background:#242b31;color:#fff;text-align:center;line-height:92px;font-size:28px}
+.innerBg{width:100%;height:371px;background:#fff;overflow:hidden}
+.inputBox{width:411px;height:230px;margin:38px auto}
+.textBox{width:415px;height:52px;margin-bottom:23px;border:1px solid #d2dbe2;border-radius:2px;padding-left:58px;box-sizing:border-box}
+.textBox:active{border:1px solid #04c3b3}
+.txtOne{background:url('../images/ren.png') no-repeat 19px center}
+.txtTwo{background:url('../images/sou.png') no-repeat 19px center}
+.loginBox{margin:33px auto 0;margin-left:84px;width:247px;height:50px;background:#04c3b3;border:1px solid #04c3b3;border-radius:5px;color:#fff;font-size:23px;cursor:pointer}
